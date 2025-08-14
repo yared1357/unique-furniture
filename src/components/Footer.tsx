@@ -37,7 +37,7 @@ const Footer: React.FC = () => {
                 <Home className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold">CeilCraft Design</h3>
+                <h3 className="text-xl font-bold">Unique Craft Design</h3>
                 <p className="text-xs text-slate-400">PREMIUM CEILING DESIGN</p>
               </div>
             </div>
