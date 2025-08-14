@@ -27,7 +27,8 @@ const Header: React.FC = () => {
               <Home className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-black">Unique Craft PLC</h1>
+              <h1 className="text-xl font-bold text-slate-800">Unique Craft Design</h1>
+              <p className="text-xs text-slate-600 hidden sm:block">PREMIUM CEILING DESIGN</p>
             </div>
           </div>
 
@@ -37,8 +38,7 @@ const Header: React.FC = () => {
               <button
                 key={item.href}
                 onClick={() => handleNavClick(item.href)}
-                className="text-black hover:text-amber-600 transition-colors duration-200 font-medium" 
-                // Changed to white
+                className="text-slate-700 hover:text-amber-600 transition-colors duration-200 font-medium"
               >
                 {item.label}
               </button>
@@ -53,9 +53,9 @@ const Header: React.FC = () => {
               className="md:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors duration-200"
             >
               {isMenuOpen ? (
-                <X className="w-6 h-6 text-white" />
+                <X className="w-6 h-6 text-slate-700" />
               ) : (
-                <Menu className="w-6 h-6 text-white" />
+                <Menu className="w-6 h-6 text-slate-700" />
               )}
             </button>
           </div>
@@ -69,8 +69,7 @@ const Header: React.FC = () => {
                 <button
                   key={item.href}
                   onClick={() => handleNavClick(item.href)}
-                  className="text-left text-black hover:text-amber-600 transition-colors duration-200 font-medium py-2" 
-                  // Changed to white
+                  className="text-left text-slate-700 hover:text-amber-600 transition-colors duration-200 font-medium py-2"
                 >
                   {item.label}
                 </button>

@@ -17,7 +17,7 @@ const About: React.FC = () => {
           {/* Content */}
           <div>
             <h2 className="text-4xl md:text-5xl font-bold text-slate-800 mb-6">
-              About CeilCraft
+              About Unique Craft PLC
             </h2>
             <p className="text-lg text-slate-600 leading-relaxed mb-8">
               With over 15 years of experience in ceiling design and installation, CeilCraft has become the trusted choice for residential and commercial projects. Our team of skilled craftsmen combines traditional techniques with modern innovation to deliver exceptional results.
