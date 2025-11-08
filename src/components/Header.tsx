@@ -8,7 +8,8 @@ const Header: React.FC = () => {
     { href: '#home', label: 'Home' },
     { href: '#services', label: 'Services' },
     { href: '#about', label: 'About' },
-    { href: '#contact', label: 'Contact' }
+    { href: '#contact', label: 'Contact' },
+    { href: '#posts', label: 'Posts' }
   ];
 
   const handleNavClick = (href: string) => {
@@ -27,7 +28,7 @@ const Header: React.FC = () => {
               <Home className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-black">Unique Craft PLC</h1>
+              <h1 className="text-xl font-bold text-black">Unique Furniture</h1>
             </div>
           </div>
 

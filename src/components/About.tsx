@@ -11,17 +11,26 @@ const About: React.FC = () => {
   ];
 
   return (
-    <section id="about" className="py-24 bg-white">
+    <section id="about" className="py-24 bg-blue-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Content */}
           <div>
             <h2 className="text-4xl md:text-5xl font-bold text-slate-800 mb-6">
-              About Unique Craft PLC
+              About Unique Furniture
             </h2>
             <p className="text-lg text-slate-600 leading-relaxed mb-8">
-              With over 15 years of experience in ceiling design and installation, CeilCraft has become the trusted choice for residential and commercial projects. Our team of skilled craftsmen combines traditional techniques with modern innovation to deliver exceptional results.
+             With over 15 years of experience in the furniture industry, Unique Furniture has become the trusted choice for transforming spaces in both residential and commercial settings.
             </p>
+
+            <p className="text-lg text-slate-600 leading-relaxed mb-8">
+             Our team of skilled artisans combines timeless craftsmanship with contemporary design to create exceptional furniture pieces that enhance your home.
+            </p>
+
+            <p className="text-lg text-slate-600 leading-relaxed mb-8">
+             We pride ourselves on our commitment to quality, style, and customer satisfaction, ensuring that every item we offer reflects your unique taste and lifestyle.
+            </p>
+
 
             {/* Stats */}
             <div className="grid grid-cols-2 gap-6">

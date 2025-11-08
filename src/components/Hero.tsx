@@ -8,22 +8,22 @@ const Hero: React.FC = () => {
     {
       image: 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080',
       title: 'Luxury Coffered Ceilings',
-      subtitle: 'Elegant architectural details that transform any space'
+      subtitle: ''
     },
     {
       image: 'https://images.pexels.com/photos/2251247/pexels-photo-2251247.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080',
       title: 'Modern Suspended Designs',
-      subtitle: 'Contemporary ceiling solutions with integrated lighting'
+      subtitle: ''
     },
     {
       image: 'https://images.pexels.com/photos/2079246/pexels-photo-2079246.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080',
       title: 'Acoustic Ceiling Systems',
-      subtitle: 'Perfect blend of functionality and aesthetic appeal'
+      subtitle: ''
     },
     {
       image: 'https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080',
       title: 'Custom Artistic Ceilings',
-      subtitle: 'Bespoke designs that reflect your unique vision'
+      subtitle: ''
     }
   ];
 
@@ -104,7 +104,7 @@ const Hero: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           <div className="mb-6">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-tight animate-fade-in">
-              Transform Your Space with Premium Ceiling Designs
+              Welcome to Unique Furniture
             </h1>
             <div className="h-16 flex items-center justify-center">
               <p className="text-xl md:text-2xl text-slate-300 leading-relaxed max-w-3xl mx-auto transition-all duration-500">
@@ -118,7 +118,6 @@ const Hero: React.FC = () => {
             className="inline-flex items-center space-x-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-semibold px-8 py-4 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
           >
             <span className="text-lg">Contact US</span>
-            <ArrowRight className="w-5 h-5" />
           </button>
         </div>
 

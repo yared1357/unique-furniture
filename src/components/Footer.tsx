@@ -22,8 +22,9 @@ const Footer: React.FC = () => {
     element?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleRedirect = () => {
-    window.location.href = 'https://yared.infinityfreeapp.com/';
+  const handleRedirect = (e: React.MouseEvent<HTMLSpanElement>) => {
+    e.stopPropagation(); // Prevent any parent click handlers
+    window.open('https://yared.infinityfreeapp.com/', '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -37,8 +38,8 @@ const Footer: React.FC = () => {
                 <Home className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-xl font-bold">Unique Craft PLC</h3>
-                <p className="text-xs text-slate-400">PREMIUM CEILING DESIGN</p>
+                <h3 className="text-xl font-bold">Unique Furniture</h3>
+                <p className="text-xs text-slate-400">YOUR FIRST CHOICE</p>
               </div>
             </div>
             <p className="text-slate-400 leading-relaxed mb-6">
@@ -87,7 +88,7 @@ const Footer: React.FC = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                <span className="text-slate-400 text-sm">info@ceilcraft.com</span>
+                <span className="text-slate-400 text-sm">info@uniquefurniture.com</span>
               </div>
             </div>
           </div>
@@ -96,11 +97,14 @@ const Footer: React.FC = () => {
         {/* Bottom Bar */}
         <div className="border-t border-slate-800 pt-8">
           <div className="flex justify-center">
-            <p
-              onClick={handleRedirect}
-              className="text-slate-400 text-sm cursor-pointer hover:text-white"
-            >
-              Copyright© {currentYear} CeilCraft Design.All Rights Resereved || Developed by Y-Global System Solution
+            <p className="text-slate-400 text-sm text-center">
+              Copyright &copy; {currentYear} Unique Furniture. || <span
+                onClick={handleRedirect}
+                className="cursor-pointer text-amber-300 hover:text-white hover:underline underline-offset-2 transition-all duration-200 font-medium"
+              >
+               Developed by Y-Global System Solution
+              </span> || All Rights Reserved {' '}
+             
             </p>
           </div>
         </div>
