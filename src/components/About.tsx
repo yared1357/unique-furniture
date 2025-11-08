@@ -17,7 +17,7 @@ const About: React.FC = () => {
           {/* Content */}
           <div>
             <h2 className="text-4xl md:text-5xl font-bold text-slate-800 mb-6">
-              About Unique Furniture
+              About Unique Furniture!
             </h2>
             <p className="text-lg text-slate-600 leading-relaxed mb-8">
              With over 15 years of experience in the furniture industry, Unique Furniture has become the trusted choice for transforming spaces in both residential and commercial settings.
