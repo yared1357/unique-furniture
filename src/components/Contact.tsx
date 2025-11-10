@@ -10,7 +10,7 @@ interface FormData {
   message: string;
 }
 
-// Use environment variable (set in Vercel)
+// API base URL – set in Vercel env
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || '/api';
 
 const Contact: React.FC = () => {
@@ -19,40 +19,41 @@ const Contact: React.FC = () => {
     email: '',
     phone: '',
     service: '',
-    message: ''
+    message: '',
   });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isFading, setIsFading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Handle input change
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setError(null); // Clear error on input
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setError(null);
   };
 
+  // Submit form
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
 
     setIsSubmitting(true);
     setError(null);
-    setIsFading(false);
 
     try {
-      const url = `${API_BASE}/submit_contact.php`;
-
-      const response = await fetch(url, {
+      const response = await fetch(`${API_BASE}/submit_contact.php`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-Requested-With': 'XMLHttpRequest',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       });
 
       const text = await response.text();
@@ -60,8 +61,7 @@ const Contact: React.FC = () => {
       let result;
       try {
         result = JSON.parse(text);
-      } catch (parseError) {
-        console.error('JSON parse error:', text);
+      } catch {
         throw new Error('Invalid response from server');
       }
 
@@ -69,17 +69,17 @@ const Contact: React.FC = () => {
         setIsSubmitted(true);
         setFormData({ name: '', email: '', phone: '', service: '', message: '' });
       } else {
-        setError(result.message || 'Failed to send message. Please try again.');
+        setError(result.message || 'Failed to send message');
       }
     } catch (err: any) {
+      setError('Network error. Please try again later.');
       console.error('Contact form error:', err);
-      setError('Network error. Please check your connection and try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Auto-hide success message after 3 seconds
+  // Auto-hide success message
   useEffect(() => {
     if (isSubmitted) {
       const fadeTimer = setTimeout(() => setIsFading(true), 2500);
@@ -122,9 +122,7 @@ const Contact: React.FC = () => {
                       <Icon className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-white mb-1">
-                        {item.title}
-                      </h3>
+                      <h3 className="text-lg font-semibold text-white mb-1">{item.title}</h3>
                       <p className="text-slate-300">{item.info}</p>
                     </div>
                   </div>
@@ -149,9 +147,7 @@ const Contact: React.FC = () => {
                 className={`text-center py-12 transition-all duration-500 ${
                   isFading ? 'opacity-0 translate-y-[-10px]' : 'opacity-100'
                 }`}
-                style={{
-                  animation: isFading ? 'fadeOut 0.5s ease-out forwards' : 'none'
-                }}
+                style={{ animation: isFading ? 'fadeOut 0.5s ease-out forwards' : 'none' }}
               >
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="w-8 h-8 text-green-600" />
@@ -181,8 +177,8 @@ const Contact: React.FC = () => {
                       onChange={handleChange}
                       required
                       disabled={isSubmitting}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:bg-gray-50 transition-all"
                       placeholder="John Doe"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:bg-gray-50 transition-all"
                     />
                   </div>
 
@@ -197,32 +193,28 @@ const Contact: React.FC = () => {
                       onChange={handleChange}
                       required
                       disabled={isSubmitting}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:bg-gray-50 transition-all"
                       placeholder="john@example.com"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:bg-gray-50 transition-all"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Phone
-                    </label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Phone</label>
                     <input
                       type="tel"
                       name="phone"
                       value={formData.phone}
                       onChange={handleChange}
                       disabled={isSubmitting}
-                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:bg-gray-50 transition-all"
                       placeholder="+251 900 000 000"
+                      className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent disabled:bg-gray-50 transition-all"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-2">
-                      Service
-                    </label>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">Service</label>
                     <select
                       name="service"
                       value={formData.service}
@@ -250,8 +242,8 @@ const Contact: React.FC = () => {
                     rows={5}
                     required
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none disabled:bg-gray-50 transition-all"
                     placeholder="Tell us about your project..."
+                    className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none disabled:bg-gray-50 transition-all"
                   />
                 </div>
 
@@ -278,7 +270,7 @@ const Contact: React.FC = () => {
         </div>
       </div>
 
-      {/* Smooth fade-out animation */}
+      {/* Fade-out animation */}
       <style jsx>{`
         @keyframes fadeOut {
           from {
