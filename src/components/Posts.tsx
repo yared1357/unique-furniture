@@ -39,19 +39,22 @@ const Posts: React.FC = () => {
   const fetchPosts = async () => {
     setLoading(true);
     setError(null);
-    const params = new URLSearchParams({
-      page: page.toString(),
-      search: searchQuery,
-    });
+
+    const apiUrl = `https://unique-furniture.infinityfreeapp.com/api/posts.php?page=${page}&search=${encodeURIComponent(searchQuery)}`;
+    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(apiUrl)}`;
 
     try {
-      const res = await fetch(`https://unique-furniture.infinityfreeapp.com/api/posts.php?${params}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
+      const proxyRes = await fetch(proxyUrl);
+      if (!proxyRes.ok) throw new Error('Proxy failed');
+
+      const proxyData = await proxyRes.json();
+      const data = JSON.parse(proxyData.contents); // <-- Real JSON from PHP
+
       setPosts(data.posts || []);
       setTotalPages(data.pages || 1);
     } catch (err: any) {
-      setError(err.message);
+      setError('Failed to load posts. Please try again.');
+      console.error('Posts error:', err);
     } finally {
       setLoading(false);
     }
@@ -74,7 +77,7 @@ const Posts: React.FC = () => {
   };
 
   if (loading) return <div className="text-center py-20">Loading posts...</div>;
-  if (error) return <div className="text-center py-20 text-red-500">Error: {error}</div>;
+  if (error) return <div className="text-center py-20 text-red-500">{error}</div>;
 
   return (
     <section id="posts" className="py-24 bg-blue-400">

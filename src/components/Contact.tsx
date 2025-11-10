@@ -32,13 +32,20 @@ const Contact: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch('https://unique-furniture.infinityfreeapp.com/api/submit_contact.php', {
+      // Use CORS proxy
+      const proxyUrl = 'https://api.allorigins.win/get?url=' + 
+        encodeURIComponent('https://unique-furniture.infinityfreeapp.com/api/submit_contact.php');
+
+      const proxyRes = await fetch(proxyUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
 
-      const result = await response.json();
+      if (!proxyRes.ok) throw new Error('Proxy failed');
+
+      const proxyData = await proxyRes.json();
+      const result = JSON.parse(proxyData.contents); // <-- Real response from PHP
 
       if (result.success) {
         setIsSubmitted(true);
@@ -47,7 +54,8 @@ const Contact: React.FC = () => {
         setError(result.message || 'Failed to send.');
       }
     } catch (err) {
-      setError('Network error. Please check your connection.');
+      setError('Failed to send. Please try again later.');
+      console.error('Contact error:', err);
     } finally {
       setIsSubmitting(false);
     }
