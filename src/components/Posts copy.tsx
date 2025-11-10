@@ -11,13 +11,11 @@ interface Post {
   created_at: string;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || '/api';
-
 const Posts: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
-  const [searchInput, setSearchInput] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchInput, setSearchInput] = useState(''); // raw input
+  const [searchQuery, setSearchQuery] = useState(''); // debounced
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -25,20 +23,21 @@ const Posts: React.FC = () => {
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Debounce search input
+  // Debounce search
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
+
     debounceRef.current = setTimeout(() => {
       setSearchQuery(searchInput);
-      setPage(1);
-    }, 400);
+      setPage(1); // reset to first page on new search
+    }, 400); // 400ms delay
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, [searchInput]);
 
-  // Fetch when query or page changes
+  // Fetch posts when searchQuery or page changes
   useEffect(() => {
     fetchPosts();
   }, [searchQuery, page]);
@@ -46,38 +45,20 @@ const Posts: React.FC = () => {
   const fetchPosts = async () => {
     setLoading(true);
     setError(null);
-
     const params = new URLSearchParams({
       page: page.toString(),
       search: searchQuery,
     });
 
     try {
-      const url = `${API_BASE}/posts.php?${params}`;
-      const res = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
-      });
-
+      const res = await fetch(`/api/posts.php?${params}`);
       const text = await res.text();
-      if (!res.ok) throw new Error(`HTTP ${res.status}: ${text}`);
-
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (e) {
-        throw new Error('Invalid JSON response');
-      }
-
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = JSON.parse(text);
       setPosts(data.posts || []);
       setTotalPages(data.pages || 1);
     } catch (err: any) {
-      console.error('Fetch error:', err);
-      setError(err.message || 'Failed to load posts');
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -86,39 +67,30 @@ const Posts: React.FC = () => {
   const toggleExpand = (id: number) => {
     setExpandedIds(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
+      newSet.has(id) ? newSet.delete(id) : newSet.add(id);
       return newSet;
     });
   };
 
-  const truncateContent = (html: string): string => {
+  const truncateContent = (html: string) => {
     if (!html) return 'No content';
     const div = document.createElement('div');
     div.innerHTML = html;
-    const text = div.textContent || div.innerText || '';
+    const text = div.textContent || '';
     return text.length > 50 ? text.slice(0, 50) + '...' : text;
   };
 
-  if (loading) {
-    return <div className="text-center py-20 text-white">Loading posts...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center py-20 text-red-400">Error: {error}</div>;
-  }
+  if (loading) return <div className="text-center py-20">Loading posts...</div>;
+  if (error) return <div className="text-center py-20 text-red-500">Error: {error}</div>;
 
   return (
     <section id="posts" className="py-24 bg-blue-400">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-slate-800 mb-4">Unique Furniture Blogs</h2>
-        </div>
+          <h2 className="text-4xl md:text-4xl font-bold text-slate-800 mb-4">Unique Furniture Blogs</h2>
+           </div>
 
-        {/* Search */}
+        {/* SMOOTH SEARCH INPUT */}
         <div className="max-w-md mx-auto mb-12">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
@@ -127,20 +99,20 @@ const Posts: React.FC = () => {
               placeholder="Search posts..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full pl-10 pr-10 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none transition-all"
+              className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none transition-all"
             />
             {searchInput && (
               <button
                 onClick={() => setSearchInput('')}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
-                ×
+                Clear
               </button>
             )}
           </div>
         </div>
 
-        {/* Horizontal Scroll */}
+        {/* ONE ROW – HORIZONTAL SCROLL */}
         <div className="overflow-x-auto pb-6">
           <div className="flex gap-8 min-w-max">
             {posts.length === 0 ? (
@@ -155,6 +127,7 @@ const Posts: React.FC = () => {
                     key={post.id}
                     className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all w-96 flex-shrink-0"
                   >
+                    {/* RESPONSIVE IMAGE / PLACEHOLDER */}
                     {post.images[0] ? (
                       <img
                         src={post.images[0]}
@@ -169,17 +142,12 @@ const Posts: React.FC = () => {
                     )}
 
                     <div className="p-6">
-                      <h3 className="text-xl font-bold text-slate-800 mb-2 line-clamp-2">
-                        {post.title}
-                      </h3>
+                      <h3 className="text-xl font-bold text-slate-800 mb-2 line-clamp-2">{post.title}</h3>
                       <time className="text-sm text-slate-500 block mb-3">
-                        {new Date(post.created_at).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        })}
+                        {new Date(post.created_at).toLocaleDateString()}
                       </time>
 
+                      {/* PREVIEW OR FULL (NO DUPLICATION) */}
                       {!isExpanded ? (
                         <p className="text-slate-600 text-sm mb-3">
                           {post.excerpt || shortContent}
