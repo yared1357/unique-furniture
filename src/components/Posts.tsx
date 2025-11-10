@@ -11,8 +11,6 @@ interface Post {
   created_at: string;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || '/api';
-
 const Posts: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
@@ -25,7 +23,6 @@ const Posts: React.FC = () => {
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Debounce search
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
@@ -35,44 +32,30 @@ const Posts: React.FC = () => {
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [searchInput]);
 
-  // Fetch posts
   useEffect(() => {
-    const fetchPosts = async () => {
-      setLoading(true);
-      setError(null);
-
-      const params = new URLSearchParams({
-        page: page.toString(),
-        search: searchQuery,
-      });
-
-      try {
-        const url = `${API_BASE}/posts.php?${params}`;
-        const res = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          }
-        });
-
-        const text = await res.text();
-        if (!res.ok) throw new Error(`HTTP ${res.status}: ${text}`);
-
-        const data = JSON.parse(text);
-        setPosts(data.posts || []);
-        setTotalPages(data.pages || 1);
-      } catch (err: any) {
-        console.error('Posts error:', err);
-        setError(err.message || 'Failed to load posts');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPosts();
   }, [searchQuery, page]);
+
+  const fetchPosts = async () => {
+    setLoading(true);
+    setError(null);
+    const params = new URLSearchParams({
+      page: page.toString(),
+      search: searchQuery,
+    });
+
+    try {
+      const res = await fetch(`https://unique-furniture.infinityfreeapp.com/api/posts.php?${params}`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setPosts(data.posts || []);
+      setTotalPages(data.pages || 1);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const toggleExpand = (id: number) => {
     setExpandedIds(prev => {
@@ -82,7 +65,7 @@ const Posts: React.FC = () => {
     });
   };
 
-  const truncateContent = (html: string): string => {
+  const truncateContent = (html: string) => {
     if (!html) return 'No content';
     const div = document.createElement('div');
     div.innerHTML = html;
@@ -90,8 +73,8 @@ const Posts: React.FC = () => {
     return text.length > 50 ? text.slice(0, 50) + '...' : text;
   };
 
-  if (loading) return <div className="text-center py-20 text-white">Loading posts...</div>;
-  if (error) return <div className="text-center py-20 text-red-400">Error: {error}</div>;
+  if (loading) return <div className="text-center py-20">Loading posts...</div>;
+  if (error) return <div className="text-center py-20 text-red-500">Error: {error}</div>;
 
   return (
     <section id="posts" className="py-24 bg-blue-400">
@@ -100,7 +83,6 @@ const Posts: React.FC = () => {
           <h2 className="text-4xl font-bold text-slate-800 mb-4">Unique Furniture Blogs</h2>
         </div>
 
-        {/* Search */}
         <div className="max-w-md mx-auto mb-12">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
@@ -109,17 +91,16 @@ const Posts: React.FC = () => {
               placeholder="Search posts..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full pl-10 pr-10 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
+              className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
             />
             {searchInput && (
               <button onClick={() => setSearchInput('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                ×
+                Clear
               </button>
             )}
           </div>
         </div>
 
-        {/* Horizontal Scroll */}
         <div className="overflow-x-auto pb-6">
           <div className="flex gap-8 min-w-max">
             {posts.length === 0 ? (
@@ -127,7 +108,7 @@ const Posts: React.FC = () => {
             ) : (
               posts.map((post) => {
                 const isExpanded = expandedIds.has(post.id);
-                const shortContent = truncateContent(post.content);
+                const shortContent = post.excerpt || truncateContent(post.content);
 
                 return (
                   <article key={post.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all w-96 flex-shrink-0">
@@ -146,7 +127,7 @@ const Posts: React.FC = () => {
                       </time>
 
                       {!isExpanded ? (
-                        <p className="text-slate-600 text-sm mb-3">{post.excerpt || shortContent}</p>
+                        <p className="text-slate-600 text-sm mb-3">{shortContent}</p>
                       ) : (
                         <div className="mt-2">
                           <div className="prose prose-sm max-w-none text-slate-700 mb-4" dangerouslySetInnerHTML={{ __html: post.content }} />
@@ -174,7 +155,6 @@ const Posts: React.FC = () => {
           </div>
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center mt-12 space-x-2">
             {Array.from({ length: totalPages }, (_, i) => (
