@@ -25,72 +25,59 @@ const Posts: React.FC = () => {
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Debounce search input
+  // Debounce search
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setSearchQuery(searchInput);
       setPage(1);
     }, 400);
-
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
   }, [searchInput]);
 
-  // Fetch when query or page changes
+  // Fetch posts
   useEffect(() => {
-    fetchPosts();
-  }, [searchQuery, page]);
+    const fetchPosts = async () => {
+      setLoading(true);
+      setError(null);
 
-  const fetchPosts = async () => {
-    setLoading(true);
-    setError(null);
-
-    const params = new URLSearchParams({
-      page: page.toString(),
-      search: searchQuery,
-    });
-
-    try {
-      const url = `${API_BASE}/posts.php?${params}`;
-      const res = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
+      const params = new URLSearchParams({
+        page: page.toString(),
+        search: searchQuery,
       });
 
-      const text = await res.text();
-      if (!res.ok) throw new Error(`HTTP ${res.status}: ${text}`);
-
-      let data;
       try {
-        data = JSON.parse(text);
-      } catch (e) {
-        throw new Error('Invalid JSON response');
-      }
+        const url = `${API_BASE}/posts.php?${params}`;
+        const res = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        });
 
-      setPosts(data.posts || []);
-      setTotalPages(data.pages || 1);
-    } catch (err: any) {
-      console.error('Fetch error:', err);
-      setError(err.message || 'Failed to load posts');
-    } finally {
-      setLoading(false);
-    }
-  };
+        const text = await res.text();
+        if (!res.ok) throw new Error(`HTTP ${res.status}: ${text}`);
+
+        const data = JSON.parse(text);
+        setPosts(data.posts || []);
+        setTotalPages(data.pages || 1);
+      } catch (err: any) {
+        console.error('Posts error:', err);
+        setError(err.message || 'Failed to load posts');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, [searchQuery, page]);
 
   const toggleExpand = (id: number) => {
     setExpandedIds(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
+      newSet.has(id) ? newSet.delete(id) : newSet.add(id);
       return newSet;
     });
   };
@@ -99,17 +86,12 @@ const Posts: React.FC = () => {
     if (!html) return 'No content';
     const div = document.createElement('div');
     div.innerHTML = html;
-    const text = div.textContent || div.innerText || '';
+    const text = div.textContent || '';
     return text.length > 50 ? text.slice(0, 50) + '...' : text;
   };
 
-  if (loading) {
-    return <div className="text-center py-20 text-white">Loading posts...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center py-20 text-red-400">Error: {error}</div>;
-  }
+  if (loading) return <div className="text-center py-20 text-white">Loading posts...</div>;
+  if (error) return <div className="text-center py-20 text-red-400">Error: {error}</div>;
 
   return (
     <section id="posts" className="py-24 bg-blue-400">
@@ -127,13 +109,10 @@ const Posts: React.FC = () => {
               placeholder="Search posts..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full pl-10 pr-10 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none transition-all"
+              className="w-full pl-10 pr-10 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none"
             />
             {searchInput && (
-              <button
-                onClick={() => setSearchInput('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-              >
+              <button onClick={() => setSearchInput('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
                 ×
               </button>
             )}
@@ -151,17 +130,9 @@ const Posts: React.FC = () => {
                 const shortContent = truncateContent(post.content);
 
                 return (
-                  <article
-                    key={post.id}
-                    className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all w-96 flex-shrink-0"
-                  >
+                  <article key={post.id} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all w-96 flex-shrink-0">
                     {post.images[0] ? (
-                      <img
-                        src={post.images[0]}
-                        alt={post.title}
-                        className="w-full h-56 object-cover"
-                        loading="lazy"
-                      />
+                      <img src={post.images[0]} alt={post.title} className="w-full h-56 object-cover" loading="lazy" />
                     ) : (
                       <div className="bg-gradient-to-br from-gray-200 to-gray-300 w-full h-56 flex items-center justify-center border-2 border-dashed border-gray-400">
                         <span className="text-gray-500 text-sm font-medium">No Image</span>
@@ -169,38 +140,22 @@ const Posts: React.FC = () => {
                     )}
 
                     <div className="p-6">
-                      <h3 className="text-xl font-bold text-slate-800 mb-2 line-clamp-2">
-                        {post.title}
-                      </h3>
+                      <h3 className="text-xl font-bold text-slate-800 mb-2 line-clamp-2">{post.title}</h3>
                       <time className="text-sm text-slate-500 block mb-3">
-                        {new Date(post.created_at).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        })}
+                        {new Date(post.created_at).toLocaleDateString()}
                       </time>
 
                       {!isExpanded ? (
-                        <p className="text-slate-600 text-sm mb-3">
-                          {post.excerpt || shortContent}
-                        </p>
+                        <p className="text-slate-600 text-sm mb-3">{post.excerpt || shortContent}</p>
                       ) : (
                         <div className="mt-2">
-                          <div
-                            className="prose prose-sm max-w-none text-slate-700 mb-4"
-                            dangerouslySetInnerHTML={{ __html: post.content }}
-                          />
+                          <div className="prose prose-sm max-w-none text-slate-700 mb-4" dangerouslySetInnerHTML={{ __html: post.content }} />
                           {post.images.length > 1 && (
                             <div className="mt-4">
                               <h4 className="text-sm font-semibold text-slate-800 mb-2">Gallery</h4>
                               <div className="grid grid-cols-2 gap-2">
                                 {post.images.slice(1).map((img, i) => (
-                                  <img
-                                    key={i}
-                                    src={img}
-                                    alt={`Image ${i + 2}`}
-                                    className="w-full h-32 object-cover rounded-lg shadow-sm"
-                                  />
+                                  <img key={i} src={img} alt={`Image ${i + 2}`} className="w-full h-32 object-cover rounded-lg shadow-sm" />
                                 ))}
                               </div>
                             </div>
@@ -208,10 +163,7 @@ const Posts: React.FC = () => {
                         </div>
                       )}
 
-                      <button
-                        onClick={() => toggleExpand(post.id)}
-                        className="text-amber-500 hover:underline font-medium text-sm mt-3 inline-block"
-                      >
+                      <button onClick={() => toggleExpand(post.id)} className="text-amber-500 hover:underline font-medium text-sm mt-3 inline-block">
                         {isExpanded ? 'Show Less' : 'Read More'}
                       </button>
                     </div>
@@ -230,9 +182,7 @@ const Posts: React.FC = () => {
                 key={i}
                 onClick={() => setPage(i + 1)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  page === i + 1
-                    ? 'bg-amber-500 text-white'
-                    : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50'
+                  page === i + 1 ? 'bg-amber-500 text-white' : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50'
                 }`}
               >
                 {i + 1}
